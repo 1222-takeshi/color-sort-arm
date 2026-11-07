@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "hardware/i2c.h"
+#include "pico/stdlib.h"
 
 class Pca9685 {
  public:
@@ -14,16 +15,18 @@ class Pca9685 {
   Pca9685(i2c_inst_t* i2c, uint8_t address = kDefaultAddress)
       : i2c_(i2c), address_(address) {}
 
-  // Reset, set the PWM frequency (50 Hz for hobby servos), and enable
-  // auto-increment + normal mode. Returns false on any I2C error.
+  // Set the PWM frequency (50 Hz for hobby servos) and enable
+  // auto-increment. Returns false on any I2C error.
   bool init(double freq_hz = 50.0) {
-    if (!writeReg(kMode1, 0x00)) return false;  // normal mode
+    if (!writeReg(kMode1, 0x00)) return false;  // normal mode (not a reset)
     // Prescale can only be set while MODE1.SLEEP is on.
     const uint8_t prescale =
         static_cast<uint8_t>(25.0e6 / (4096.0 * freq_hz) - 1.0 + 0.5);
     if (!writeReg(kMode1, 0x10)) return false;  // sleep
     if (!writeReg(kPrescale, prescale)) return false;
     if (!writeReg(kMode1, 0x20)) return false;  // wake, auto-increment
+    busy_wait_us(1000);  // oscillator stabilisation after wake
+    if (!writeReg(kMode1, 0xA0)) return false;  // restart + auto-increment
     return true;
   }
 

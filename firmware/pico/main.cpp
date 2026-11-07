@@ -50,10 +50,12 @@ int main() {
   }
 
   pantilt::Sweeper pan(pantilt::kPanConfig, kPanSweepSpeed, 0.0);
-  setAxis(pwm, pantilt::kTiltChannel, kTiltHomeDeg, pantilt::kTiltConfig);
   while (true) {
     const double angle = pan.update(kStepMs / 1000.0);
     setAxis(pwm, pantilt::kPanChannel, angle, pantilt::kPanConfig);
+    // Re-assert tilt every cycle too, so a transient I2C error on one
+    // write cannot leave the tilt servo uncommanded until reboot.
+    setAxis(pwm, pantilt::kTiltChannel, kTiltHomeDeg, pantilt::kTiltConfig);
     sleep_ms(kStepMs);
   }
 }
