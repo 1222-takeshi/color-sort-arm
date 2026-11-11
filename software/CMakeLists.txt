@@ -24,6 +24,11 @@ else()
   message(STATUS "OpenCV not found: vision module and --image mode disabled")
 endif()
 
+# STS3215 packet protocol (dependency-free).
+add_library(arm_proto proto/sts3215.cpp)
+target_include_directories(arm_proto PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_options(arm_proto PRIVATE -Wall -Wextra)
+
 # Driver boundary (stub implementation).
 add_library(arm_app app/arm_driver.cpp)
 target_include_directories(arm_app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -45,3 +50,8 @@ add_executable(arm_tests tests/test_core.cpp)
 target_link_libraries(arm_tests PRIVATE arm_core)
 target_compile_options(arm_tests PRIVATE -Wall -Wextra)
 add_test(NAME arm_tests COMMAND arm_tests)
+
+add_executable(proto_tests tests/test_proto.cpp)
+target_link_libraries(proto_tests PRIVATE arm_proto)
+target_compile_options(proto_tests PRIVATE -Wall -Wextra)
+add_test(NAME proto_tests COMMAND proto_tests)
