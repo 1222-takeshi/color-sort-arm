@@ -76,3 +76,22 @@ The control side (Pico + PCA9685 firmware, angle limits, sweep) does not
 depend on gaps 1-5 and proceeds in parallel. Printing waits until gaps 1
 and 2 are resolved and the board has been measured (user task, see the
 assembly guide).
+
+## Pan-tilt CAD v2: generation verified (2026-11-11)
+
+The v2 generator (`cad/pan_tilt.py`, PR #15) was executed with
+CadQuery 2.8.0 after this document was first written. All three parts
+generate without errors and fit the Adventurer 3 working limit:
+
+| Part | Bounding box [mm] | Volume check |
+|---|---|---|
+| 12_cam_holder_v2 | 35.0 x 6.0 x 46.5 | lens window and pivot hole remove 0.59 cm3 vs. the uncut holder |
+| 13_cam_tilt_arm_v2 | 34.0 x 14.0 x 56.0 | servo pocket and holes remove ~4.3 cm3 vs. the solid block |
+| 14_pole_segment_70 | 30.0 x 30.0 x 70.0 | cable channel and M3 holes remove ~8.0 cm3 vs. the solid block |
+
+The holder dimensions follow the parameter block (board 27.0 x
+40.5 mm assumed, plus walls and clearance), so the sizes above move
+with the parameters once the real board is measured. Still open
+before printing: the board measurement itself (gap 1), the tilt
+servo pocket fit against a real 9 g servo (gap 2 follow-up), and the
+pole count decision (gap 4). Nothing has been printed.
