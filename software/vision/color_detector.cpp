@@ -5,6 +5,11 @@
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#if CV_VERSION_MAJOR >= 5
+// OpenCV 5 moved contourArea / moments / boundingRect into the
+// geometry module; OpenCV 4 declares them via imgproc.hpp.
+#include <opencv2/geometry/2d.hpp>
+#endif
 
 namespace arm {
 

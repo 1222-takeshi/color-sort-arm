@@ -40,11 +40,12 @@ Note: the calibration file format is the plain-text format written by
 
 ## Not yet verified
 
-- `vision/` and the `--image` path of `app/main.cpp` have **not been
-  compile-checked**: OpenCV is not installed in the current build
-  environment. They are written against the standard OpenCV 4 API and
-  follow the verified reference implementation's logic, but the first
-  build on a machine with OpenCV may still surface small API fixes.
+- `vision/` and the `--image` path were compile-checked and run
+  against a synthetic image on macOS with OpenCV 5.1 (2026-11-11).
+  OpenCV 5 moved some imgproc functions into the geometry module;
+  `vision/color_detector.cpp` includes that header under a version
+  guard, so OpenCV 4 builds keep working. Real-camera HSV ranges are
+  still untuned (see issue #7).
 - Everything hardware-facing is a stub: no serial communication takes
   place anywhere yet.
 - The IK link lengths in `ik.h` (`ArmParams`) are provisional estimates
