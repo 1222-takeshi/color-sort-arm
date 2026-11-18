@@ -55,12 +55,65 @@ void testSignedMagnitude() {
   CHECK(sts::decodeSignedMagnitude(0x0401, 10) == -1);
   CHECK(sts::decodeSignedMagnitude(0x03FF, 10) == 1023);
 }
+void testSyncPackets() {
+  // SYNC_WRITE from ACC (41), 7 bytes for servo 1:
+  // ACC=10, goal pos 2048 (LE 00 08), time 0, speed 0.
+  // sum = FE+0C+83+29+07+01+0A+00+08 = 0xD0 -> CHK 0x2F.
+  const auto sw = sts::syncWritePacket(
+      sts::kRegAcc, 7, {{1, {10, 0x00, 0x08, 0, 0, 0, 0}}});
+  CHECK(sw == (std::vector<uint8_t>{0xFF, 0xFF, 0xFE, 0x0C, 0x83, 0x29,
+                                    0x07, 0x01, 0x0A, 0x00, 0x08, 0x00,
+                                    0x00, 0x00, 0x00, 0x2F}));
+  // SYNC_READ 6 bytes from PRESENT_POSITION (56) for servos 1 and 2:
+  // sum = FE+06+82+38+06+01+02 = 0xC7 -> CHK 0x38.
+  const auto sr = sts::syncReadPacket(sts::kRegPresentPosition, 6, {1, 2});
+  CHECK(sr == (std::vector<uint8_t>{0xFF, 0xFF, 0xFE, 0x06, 0x82, 0x38,
+                                    0x06, 0x01, 0x02, 0x38}));
+}
+
+void testStreamParser() {
+  const std::vector<uint8_t> good = {0xFF, 0xFF, 0x01, 0x04,
+                                     0x00, 0x00, 0x08, 0xF2};  // id 1
+  const std::vector<uint8_t> good2 = {0xFF, 0xFF, 0x02, 0x04,
+                                      0x00, 0x00, 0x08, 0xF1};  // id 2
+  {  // garbage before the header is dropped
+    sts::StreamParser p;
+    std::vector<uint8_t> stream = {0x00, 0x13, 0xFF};
+    stream.insert(stream.end(), good.begin(), good.end());
+    const auto out = p.feed(stream);
+    CHECK(out.size() == 1 && out[0].id == 1);
+  }
+  {  // a corrupted packet does not block the next one
+    sts::StreamParser p;
+    std::vector<uint8_t> stream = {0xFF, 0xFF, 0x01, 0x04,
+                                   0x00, 0x00, 0x08, 0x00};  // bad CHK
+    stream.insert(stream.end(), good.begin(), good.end());
+    const auto out = p.feed(stream);
+    CHECK(out.size() == 1 && out[0].id == 1);
+  }
+  {  // split feeds complete only when the last byte arrives
+    sts::StreamParser p;
+    CHECK(p.feed(good.data(), 3).empty());
+    const auto out = p.feed(good.data() + 3, good.size() - 3);
+    CHECK(out.size() == 1 && out[0].id == 1);
+  }
+  {  // two packets in one feed
+    sts::StreamParser p;
+    std::vector<uint8_t> stream = good;
+    stream.insert(stream.end(), good2.begin(), good2.end());
+    const auto out = p.feed(stream);
+    CHECK(out.size() == 2 && out[0].id == 1 && out[1].id == 2);
+  }
+}
+
 }  // namespace
 
 int main() {
   testGoldenVectors();
   testParseStatus();
   testSignedMagnitude();
+  testSyncPackets();
+  testStreamParser();
   std::printf("%d checks, %d failure(s)\n", g_checks, g_failures);
   if (g_failures == 0) std::printf("ALL TESTS PASSED\n");
   return g_failures == 0 ? 0 : 1;

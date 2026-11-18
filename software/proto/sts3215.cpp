@@ -59,4 +59,60 @@ int decodeSignedMagnitude(uint16_t value, int sign_bit) {
   return (value & sign_mask) ? -magnitude : magnitude;
 }
 
+std::vector<uint8_t> syncWritePacket(
+    uint8_t start_address, uint8_t data_len,
+    const std::vector<std::pair<uint8_t, std::vector<uint8_t>>>& items) {
+  std::vector<uint8_t> params = {start_address, data_len};
+  for (const auto& item : items) {
+    params.push_back(item.first);
+    params.insert(params.end(), item.second.begin(), item.second.end());
+  }
+  return buildPacket(kBroadcastId, kInstSyncWrite, params);
+}
+
+std::vector<uint8_t> syncReadPacket(uint8_t start_address, uint8_t data_len,
+                                    const std::vector<uint8_t>& ids) {
+  std::vector<uint8_t> params = {start_address, data_len};
+  params.insert(params.end(), ids.begin(), ids.end());
+  return buildPacket(kBroadcastId, kInstSyncRead, params);
+}
+
+std::vector<StatusPacket> StreamParser::feed(const uint8_t* data, size_t len) {
+  buffer_.insert(buffer_.end(), data, data + len);
+  std::vector<StatusPacket> out;
+  for (;;) {
+    size_t header = buffer_.size();
+    for (size_t i = 0; i + 1 < buffer_.size(); ++i) {
+      if (buffer_[i] == 0xFF && buffer_[i + 1] == 0xFF) {
+        header = i;
+        break;
+      }
+    }
+    if (header == buffer_.size()) {
+      const bool keep = !buffer_.empty() && buffer_.back() == 0xFF;
+      buffer_.clear();
+      if (keep) buffer_.push_back(0xFF);
+      break;
+    }
+    if (header > 0)
+      buffer_.erase(buffer_.begin(), buffer_.begin() + header);
+    if (buffer_.size() < 4) break;
+    const size_t total = static_cast<size_t>(buffer_[3]) + 4;
+    if (buffer_[3] < 2 || total > 68) {  // implausible LEN: resync
+      buffer_.erase(buffer_.begin());
+      continue;
+    }
+    if (buffer_.size() < total) break;
+    const std::vector<uint8_t> frame(buffer_.begin(),
+                                     buffer_.begin() + total);
+    if (const auto st = parseStatus(frame)) {
+      out.push_back(*st);
+      buffer_.erase(buffer_.begin(), buffer_.begin() + total);
+    } else {
+      buffer_.erase(buffer_.begin());
+    }
+  }
+  return out;
+}
+
 }  // namespace sts
