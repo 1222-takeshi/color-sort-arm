@@ -30,9 +30,9 @@ target_include_directories(arm_proto PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_options(arm_proto PRIVATE -Wall -Wextra)
 
 # Driver boundary (stub implementation).
-add_library(arm_app app/arm_driver.cpp)
+add_library(arm_app app/arm_driver.cpp app/sts3215_driver.cpp)
 target_include_directories(arm_app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(arm_app PUBLIC arm_core)
+target_link_libraries(arm_app PUBLIC arm_core arm_proto)
 target_compile_options(arm_app PRIVATE -Wall -Wextra)
 
 # Main application.
@@ -55,3 +55,8 @@ add_executable(proto_tests tests/test_proto.cpp)
 target_link_libraries(proto_tests PRIVATE arm_proto)
 target_compile_options(proto_tests PRIVATE -Wall -Wextra)
 add_test(NAME proto_tests COMMAND proto_tests)
+
+add_executable(driver_tests tests/test_driver.cpp)
+target_link_libraries(driver_tests PRIVATE arm_app arm_proto)
+target_compile_options(driver_tests PRIVATE -Wall -Wextra)
+add_test(NAME driver_tests COMMAND driver_tests)
