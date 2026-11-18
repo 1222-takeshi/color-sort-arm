@@ -31,6 +31,9 @@ target_compile_options(arm_proto PRIVATE -Wall -Wextra)
 
 # Driver boundary (stub implementation).
 add_library(arm_app app/arm_driver.cpp app/sts3215_driver.cpp)
+if(UNIX)
+  target_sources(arm_app PRIVATE app/serial_transport.cpp)
+endif()
 target_include_directories(arm_app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(arm_app PUBLIC arm_core arm_proto)
 target_compile_options(arm_app PRIVATE -Wall -Wextra)

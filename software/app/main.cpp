@@ -16,11 +16,14 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "app/arm_driver.h"
+#include "app/serial_transport.h"
+#include "app/sts3215_driver.h"
 #include "core/calibration.h"
 #include "core/ik.h"
 #include "vision/detection.h"
@@ -144,9 +147,12 @@ buildSyntheticScene() {
 }
 
 void printUsage(const char* argv0) {
-  std::cerr << "usage: " << argv0 << " --synthetic\n"
+  std::cerr << "usage: " << argv0 << " --synthetic [--port <device>]\n"
             << "       " << argv0
-            << " --image <file> --calibration <file>\n";
+            << " --image <file> --calibration <file> [--port <device>]\n"
+            << "  --port selects the real STS3215 driver on that serial\n"
+            << "  device (Pico bridge or bus adapter); without it, the\n"
+            << "  stub driver is used and nothing moves.\n";
 }
 
 }  // namespace
@@ -155,6 +161,7 @@ int main(int argc, char** argv) {
   bool synthetic = false;
   std::string image_path;
   std::string calibration_path;
+  std::string port;
   for (int i = 1; i < argc; ++i) {
     if (std::strcmp(argv[i], "--synthetic") == 0) {
       synthetic = true;
@@ -162,6 +169,8 @@ int main(int argc, char** argv) {
       image_path = argv[++i];
     } else if (std::strcmp(argv[i], "--calibration") == 0 && i + 1 < argc) {
       calibration_path = argv[++i];
+    } else if (std::strcmp(argv[i], "--port") == 0 && i + 1 < argc) {
+      port = argv[++i];
     } else {
       printUsage(argv[0]);
       return 2;
@@ -202,11 +211,25 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  // Stub until the hardware arrives; switch to the real driver here.
-  arm::StubArmDriver driver;
-  driver.connect();
-  const int done = runSorting(detections, calib, driver);
-  driver.disconnect();
+  // Without --port this is a dry run on the stub driver. With --port,
+  // the real STS3215 driver talks to the bus on that device.
+  std::unique_ptr<arm::ByteTransport> transport;
+  std::unique_ptr<arm::ArmDriver> driver;
+  int done = 0;
+  try {
+    if (port.empty()) {
+      driver = std::make_unique<arm::StubArmDriver>();
+    } else {
+      transport = std::make_unique<arm::SerialTransport>(port);
+      driver = std::make_unique<arm::Sts3215ArmDriver>(*transport);
+    }
+    driver->connect();
+    done = runSorting(detections, calib, *driver);
+    driver->disconnect();
+  } catch (const std::exception& e) {
+    std::cerr << "error: " << e.what() << "\n";
+    return 1;
+  }
   std::cout << "sorting complete: " << done << " object(s)\n";
   return 0;
 }
