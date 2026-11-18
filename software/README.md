@@ -46,8 +46,12 @@ Note: the calibration file format is the plain-text format written by
   `vision/color_detector.cpp` includes that header under a version
   guard, so OpenCV 4 builds keep working. Real-camera HSV ranges are
   still untuned (see issue #7).
-- Everything hardware-facing is a stub: no serial communication takes
-  place anywhere yet.
+- The STS3215 driver (`app/sts3215_driver.*`) and the POSIX serial
+  transport are implemented and host-tested against a fake bus
+  (`driver_tests`, 28 checks); `color_sort --port <device>` selects
+  the real driver. On-hardware verification is still pending (issue
+  #6 acceptance): no servo has been attached yet, and the joint
+  direction / center conventions are the #4 calibration's job.
 - The IK link lengths in `ik.h` (`ArmParams`) are provisional estimates
   for an SO-101-class arm, not measured values.
 
