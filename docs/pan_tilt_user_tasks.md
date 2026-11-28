@@ -11,10 +11,13 @@ Done via ruler photos of the unit in its white case. Results: case
 case bottom edge. The holder now grips the case as-is (holder v3,
 see docs/pan_tilt_mount.md), so no bare-board measurement is needed.
 
-One number is still missing and is needed before the holder is
-printed (about 1 minute, any time before step 3): the case depth
-(thickness). A caliper confirmation of the width/height at the same
-time is welcome but optional.
+Update (2026-11-28): the owner asked for a formal case to replace
+the temporary one, and it has been designed (docs/esp32cam_case.md).
+The case depth question is therefore closed - the formal case is
+12.6 mm deep by design, and the holder follows it. No further
+measurement is needed here; the design goes to the owner for
+confirmation first, and printing (step 3) covers the case parts as
+well as the mount parts.
 
 ## 2. Confirm the in-stock parts (about 10 min)
 
@@ -26,10 +29,10 @@ time is welcome but optional.
 
 ## 3. Print the parts (after the CAD revision is merged)
 
-Print list and settings are finalized with the CAD revision. Before
-printing, the case depth from step 1 must be in so CASE_D can be
-fixed. Print the holder alone first and test-fit the case, then the
-rest. Adventurer 3, standard profile; the three current parts need
+Print list and settings are finalized with the CAD revision and
+the formal case design (docs/esp32cam_case.md), after the owner's
+confirmation of that design. Print the holder and the case front
+shell first and test-fit them together, then the rest. Adventurer 3, standard profile; the three current parts need
 no supports except the holder lip.
 
 ## 4. Assemble (about 30 min, after printing)
