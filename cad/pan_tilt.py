@@ -46,9 +46,9 @@ def box(x, y, z, cx=0.0, cy=0.0, cz=0.0):
 
 
 def hole_y(part, r, x, z, depth=30.0):
-    """Through hole along Y at (x, z)."""
+    """Through hole along Y at (x, z), centered on y = 0."""
     cutter = cq.Workplane("XY").circle(r).extrude(depth)
-    cutter = cutter.rotate((0, 0, 0), (1, 0, 0), 90)
+    cutter = cutter.rotate((0, 0, 0), (1, 0, 0), -90)
     return part.cut(cutter.translate((x, -depth / 2.0, z)))
 
 
