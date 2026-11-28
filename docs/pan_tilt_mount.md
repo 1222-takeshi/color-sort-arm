@@ -130,3 +130,11 @@ can be fixed; a caliper confirmation of width/height at the same
 time would let the clearance shrink back to 1 mm. A bare-board
 measurement is not needed. Print order: holder alone first, test-fit
 the case, then the rest.
+
+Follow-up (2026-11-28): a formal case was designed at the owner's
+request (docs/esp32cam_case.md, PR #29). The holder parameters now
+follow that design instead of the temporary case: CASE_D = 12.6,
+lens window offsets LENS_DX = -2.4, LENS_DY = -11.6 (lens at
+20.6 mm from the case left edge, 12.9 mm above its bottom edge).
+The temporary case's own depth was never measured and no longer
+needs to be: the formal case supersedes it.
