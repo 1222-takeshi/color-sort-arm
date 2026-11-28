@@ -4,15 +4,17 @@ These steps need the physical parts and are done by the owner. Everything
 else (CAD, firmware, tests) is prepared in this repository. Do the steps
 in order; steps 1-2 unblock the final CAD revision.
 
-## 1. Measure the ESP32-CAM board (about 10 min)
+## 1. Measure the ESP32-CAM board (about 10 min) - DONE 2026-11-28
 
-Needed to fix the holder size (see docs/pan_tilt_mount.md, gap 1).
+Done via ruler photos of the unit in its white case. Results: case
+46 x 49 mm (+/-2), lens centered horizontally and ~12 mm above the
+case bottom edge. The holder now grips the case as-is (holder v3,
+see docs/pan_tilt_mount.md), so no bare-board measurement is needed.
 
-- Measure the board width and height with calipers or a ruler, and the
-  lens center offset from the board edges (left edge and top edge).
-- Note which edge carries the pin header / reset button.
-- A photo of the board next to a ruler, front and back, covers all of
-  this at once. Share the values/photo and the CAD is updated to match.
+One number is still missing and is needed before the holder is
+printed (about 1 minute, any time before step 3): the case depth
+(thickness). A caliper confirmation of the width/height at the same
+time is welcome but optional.
 
 ## 2. Confirm the in-stock parts (about 10 min)
 
@@ -24,9 +26,11 @@ Needed to fix the holder size (see docs/pan_tilt_mount.md, gap 1).
 
 ## 3. Print the parts (after the CAD revision is merged)
 
-Print list and settings are finalized with the CAD revision (holder size
-and the tilt servo mount depend on step 1). Adventurer 3, standard
-profile; the three current parts need no supports except the holder lip.
+Print list and settings are finalized with the CAD revision. Before
+printing, the case depth from step 1 must be in so CASE_D can be
+fixed. Print the holder alone first and test-fit the case, then the
+rest. Adventurer 3, standard profile; the three current parts need
+no supports except the holder lip.
 
 ## 4. Assemble (about 30 min, after printing)
 
