@@ -11,8 +11,9 @@ Fixes the two blocking gaps from docs/pan_tilt_mount.md:
 
 The holder grips the white case the stock ESP32-CAM (HW-0055) sits
 in, not the bare board. Case dimensions were measured on 2026-11-28
-from the owner's ruler photos (see docs/pan_tilt_mount.md); the case
-depth is still a placeholder and must be confirmed before printing.
+from the owner's ruler photos (see docs/pan_tilt_mount.md). The
+depth and lens offsets now follow the formal case design
+(docs/esp32cam_case.md), which replaces the temporary case.
 Change only the parameter block, then re-run: outputs go to
 cad/out_pan_tilt/. Units are mm. Every part stays inside the
 Adventurer 3 build volume (150 x 150 x 150 mm); the generator prints
@@ -28,9 +29,9 @@ os.makedirs(OUT, exist_ok=True)
 # ---------------- Parameters (case measured 2026-11-28) -------------
 CASE_W = 46.0       # white case width  [measured from photos, +/-2 mm]
 CASE_H = 49.0       # white case height [measured from photos, +/-2 mm]
-CASE_D = 12.0       # white case depth  [PLACEHOLDER - not measured yet]
-LENS_DX = 0.0       # lens center offset from case center, X (centered)
-LENS_DY = -12.5     # lens ~12 mm above the case bottom edge -> below center
+CASE_D = 12.6       # case depth [formal case design, docs/esp32cam_case.md]
+LENS_DX = -2.4      # lens center offset from case center, X [formal case]
+LENS_DY = -11.6     # lens 12.9 mm above the case bottom edge [formal case]
 LENS_WIN = 14.0     # lens window size (square)
 CLEAR = 2.0         # side clearance per side (covers the photo tolerance)
 
