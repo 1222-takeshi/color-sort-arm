@@ -95,3 +95,38 @@ with the parameters once the real board is measured. Still open
 before printing: the board measurement itself (gap 1), the tilt
 servo pocket fit against a real 9 g servo (gap 2 follow-up), and the
 pole count decision (gap 4). Nothing has been printed.
+
+## Case measurement and holder v3 (2026-11-28)
+
+The owner measured the stock ESP32-CAM (HW-0055) in its white case
+with ruler photos (2026-11-28). The values below were read from the
+photos twice (direct ruler reading and pixel measurement against the
+ruler marks); the two reads agree within ~2 mm. A first estimate of
+52 mm for the width could not be reproduced from the photos and was
+not used.
+
+| Item | Value | Notes |
+|---|---|---|
+| White case, width | 46 mm (+/-2) | photo reads 44.5-47.7 mm |
+| White case, height | 49 mm (+/-2) | photo reads ~49 mm |
+| Lens position | centered horizontally (+/-1); ~12 mm above the case bottom edge | from both photos |
+| White case, depth | **not measured** | CASE_D stays a 12 mm placeholder |
+
+Design decision: the holder grips the white case as-is (the board is
+not removed from its tray). `cad/pan_tilt.py` now carries CASE_W /
+CASE_H / CASE_D / CLEAR parameters, and the holder (v3) is a pocket
+with 2 mm side clearance per side, which absorbs the +/-2 mm photo
+tolerance. Generated 2026-11-28 with CadQuery 2.8.0:
+
+| Part | Bounding box [mm] |
+|---|---|
+| 12_cam_holder_v3 | 56.0 x 16.0 x 55.0 |
+| 13_cam_tilt_arm_v2 | 34.0 x 14.0 x 56.0 (unchanged) |
+| 14_pole_segment_70 | 30.0 x 30.0 x 70.0 (unchanged) |
+
+Gap 1 is closed for the case approach. Still open before printing
+the holder: measure the case depth (one number, ~1 minute) so CASE_D
+can be fixed; a caliper confirmation of width/height at the same
+time would let the clearance shrink back to 1 mm. A bare-board
+measurement is not needed. Print order: holder alone first, test-fit
+the case, then the rest.
